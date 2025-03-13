@@ -18,26 +18,27 @@ namespace RepositoryLayer.Service
             _context = context;
         }
 
-        public List<AddressBookEntry> GetAllContacts()
+        public List<AddressBookEntry> GetAllContacts(int userId)
         {
-            return _context.AddressBooks.ToList();
+            return _context.AddressBooks.Where(c => c.UserId == userId).ToList();
         }
 
-        public AddressBookEntry GetById(int id)
+        public AddressBookEntry GetById(int id, int userId)
         {
-            return _context.AddressBooks.Find(id);
+            return _context.AddressBooks.FirstOrDefault(c => c.Id == id && c.UserId == userId);
         }
 
-        public AddressBookEntry AddContact(AddressBookEntry contact)
+        public AddressBookEntry AddContact(AddressBookEntry contact, int userId)
         {
+            contact.UserId = userId;
             _context.AddressBooks.Add(contact);
             _context.SaveChanges();
             return contact;
         }
 
-        public AddressBookEntry UpdateContact(int id, AddressBookEntry updatedContact)
+        public AddressBookEntry UpdateContact(int id, AddressBookEntry updatedContact, int userId)
         {
-            var contact = _context.AddressBooks.Find(id);
+            var contact = _context.AddressBooks.FirstOrDefault(c => c.Id == id && c.UserId == userId);
             if (contact == null) return null;
 
             contact.Name = updatedContact.Name;
@@ -49,9 +50,9 @@ namespace RepositoryLayer.Service
             return contact;
         }
 
-        public bool DeleteContact(int id)
+        public bool DeleteContact(int id, int userId)
         {
-            var contact = _context.AddressBooks.Find(id);
+            var contact = _context.AddressBooks.FirstOrDefault(c => c.Id == id && c.UserId == userId);
             if (contact == null) return false;
 
             _context.AddressBooks.Remove(contact);

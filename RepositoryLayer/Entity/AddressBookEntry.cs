@@ -19,5 +19,7 @@ namespace RepositoryLayer.Entity
         public string Phone { get; set; }
         [Required]
         public string Address { get; set; }
+        public int UserId { get; set; }  
+        public UserEntry User { get; set; }
     }
 }

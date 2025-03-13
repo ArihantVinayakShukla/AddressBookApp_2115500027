@@ -1,25 +1,35 @@
 ﻿using BusinessLayer.Interface;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ModelLayer.DTO;
-using RepositoryLayer.Context;
-using RepositoryLayer.Entity;
+using System;
+using System.Collections.Generic;
+using System.Security.Claims;
 
 namespace AddressBookAPI.Controllers
 {
-        [ApiController]
-        [Route("api/addressbook")]
+    [ApiController]
+    [Route("api/addressbook")]
+    [Authorize]
     public class AddressBookController : ControllerBase
     {
         private readonly IAddressBookBL _addressBookBL;
+        private readonly IUserBL _userBL; // Added UserBL to fetch UserId from Email
 
-        public AddressBookController(IAddressBookBL addressBookBL)
+        public AddressBookController(IAddressBookBL addressBookBL, IUserBL userBL)
         {
             _addressBookBL = addressBookBL;
+            _userBL = userBL;
         }
 
+        // Extracts the Email from the JWT Token
+        private string GetUserEmailFromToken()
+        {
+            return User.FindFirstValue(ClaimTypes.Email);
+        }
 
         /// <summary>
-        /// Fetch all contacts from the address book
+        /// Fetch all contacts for the logged-in user
         /// </summary>
         /// <returns>List of AddressBookDTO entries</returns>
         [HttpGet]
@@ -27,12 +37,14 @@ namespace AddressBookAPI.Controllers
         {
             try
             {
-                var contacts = _addressBookBL.GetAllContacts();
-                if (contacts == null || contacts.Count == 0)
-                {
-                    return NotFound("No contacts found.");
-                }
-                return Ok(contacts);
+                string userEmail = GetUserEmailFromToken();
+                int userId = _userBL.GetUserIdByEmail(userEmail);
+
+                if (userId == 0)
+                    return Unauthorized("Invalid user credentials.");
+
+                var contacts = _addressBookBL.GetAllContacts(userEmail);
+                return contacts.Count > 0 ? Ok(contacts) : NotFound("No contacts found.");
             }
             catch (Exception)
             {
@@ -40,9 +52,8 @@ namespace AddressBookAPI.Controllers
             }
         }
 
-
         /// <summary>
-        /// Get a contact by ID.
+        /// Get a contact by ID for the logged-in user
         /// </summary>
         /// <param name="id">ID of the contact</param>
         /// <returns>Contact details</returns>
@@ -51,12 +62,14 @@ namespace AddressBookAPI.Controllers
         {
             try
             {
-                var contact = _addressBookBL.GetById(id);
-                if (contact == null)
-                {
-                    return NotFound($"Contact with ID {id} not found.");
-                }
-                return Ok(contact);
+                string userEmail = GetUserEmailFromToken();
+                int userId = _userBL.GetUserIdByEmail(userEmail);
+
+                if (userId == 0)
+                    return Unauthorized("Invalid user credentials.");
+
+                var contact = _addressBookBL.GetById(id, userEmail);
+                return contact != null ? Ok(contact) : NotFound($"Contact with ID {id} not found.");
             }
             catch (Exception)
             {
@@ -64,9 +77,8 @@ namespace AddressBookAPI.Controllers
             }
         }
 
-
         /// <summary>
-        /// Add a new contact to the address book
+        /// Add a new contact for the logged-in user
         /// </summary>
         /// <param name="contact">New contact details</param>
         /// <returns>Created Contact</returns>
@@ -75,8 +87,14 @@ namespace AddressBookAPI.Controllers
         {
             try
             {
-                var newContact = _addressBookBL.AddContact(contact);
-                return CreatedAtAction(nameof(GetById), new { id = newContact }, newContact);
+                string userEmail = GetUserEmailFromToken();
+                int userId = _userBL.GetUserIdByEmail(userEmail);
+
+                if (userId == 0)
+                    return Unauthorized("Invalid user credentials.");
+
+                var newContact = _addressBookBL.AddContact(contact, userEmail);
+                return CreatedAtAction(nameof(GetById), new { id = newContact.Id }, newContact);
             }
             catch (Exception)
             {
@@ -84,9 +102,8 @@ namespace AddressBookAPI.Controllers
             }
         }
 
-
         /// <summary>
-        /// Update an existing contact
+        /// Update an existing contact for the logged-in user
         /// </summary>
         /// <param name="id">Id of the contact</param>
         /// <param name="updatedContact">Updated contact details</param>
@@ -96,12 +113,14 @@ namespace AddressBookAPI.Controllers
         {
             try
             {
-                var contact = _addressBookBL.UpdateContact(id, updatedContact);
-                if (contact == null)
-                {
-                    return NotFound($"Contact with ID {id} not found.");
-                }
-                return Ok(contact);
+                string userEmail = GetUserEmailFromToken();
+                int userId = _userBL.GetUserIdByEmail(userEmail);
+
+                if (userId == 0)
+                    return Unauthorized("Invalid user credentials.");
+
+                var contact = _addressBookBL.UpdateContact(id, updatedContact, userEmail);
+                return contact != null ? Ok(contact) : NotFound($"Contact with ID {id} not found.");
             }
             catch (Exception)
             {
@@ -109,9 +128,8 @@ namespace AddressBookAPI.Controllers
             }
         }
 
-
         /// <summary>
-        /// Delete a contact by ID
+        /// Delete a contact by ID for the logged-in user
         /// </summary>
         /// <param name="id">ID of the contact</param>
         /// <returns>Deletion status</returns>
@@ -120,19 +138,19 @@ namespace AddressBookAPI.Controllers
         {
             try
             {
-                var result = _addressBookBL.DeleteContact(id);
-                if (!result)
-                {
-                    return NotFound($"Contact with ID {id} not found.");
-                }
-                return Ok("Contact deleted successfully.");
+                string userEmail = GetUserEmailFromToken();
+                int userId = _userBL.GetUserIdByEmail(userEmail);
+
+                if (userId == 0)
+                    return Unauthorized("Invalid user credentials.");
+
+                var result = _addressBookBL.DeleteContact(id, userEmail);
+                return result ? Ok("Contact deleted successfully.") : NotFound($"Contact with ID {id} not found.");
             }
             catch (Exception)
             {
                 return StatusCode(500, "Internal Server Error");
             }
         }
-
-
     }
 }

@@ -14,6 +14,19 @@ namespace RepositoryLayer.Context
         {
         }
 
+        public DbSet<UserEntry> Users { get; set; }
         public DbSet<AddressBookEntry> AddressBooks { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            // User-AddressBook One-to-Many Relationship
+            modelBuilder.Entity<AddressBookEntry>()
+                .HasOne(a => a.User)
+                .WithMany()
+                .HasForeignKey(a => a.UserId)
+                .OnDelete(DeleteBehavior.Cascade); // If a user is deleted, delete their contacts
+
+            base.OnModelCreating(modelBuilder);
+        }
     }
 }
