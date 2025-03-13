@@ -31,5 +31,59 @@ namespace AddressBookAPI.Controllers
             return Ok(new { Token = token });
         }
 
+        [HttpPost("forgot-password")]
+        public IActionResult ForgotPassword([FromBody] ForgotPasswordDTO forgotPasswordDTO)
+        {
+            var result = _userBL.ForgotPassword(forgotPasswordDTO.Email);
+            if(result)
+            {
+                return Ok(new
+                {
+                    Success = true,
+                    Message = "Password reset instructions sent to your email"
+                });
+            }
+            else
+            {
+                return BadRequest(new
+                {
+                    Success = false,
+                    Message = "Failed to process password reset request"
+                });
+            }
+        }
+
+        [HttpPost("reset-password")]
+        public IActionResult ResetPassword([FromQuery] string token, [FromBody] ResetPasswordDTO resetPasswordDTO)
+        {
+            if(string.IsNullOrEmpty(token))
+            {
+                return BadRequest(new { Success = false, Message = "Token is required" });
+            }
+
+            if(resetPasswordDTO == null)
+            {
+                return BadRequest(new { Success = false, Message = "Password Data is required" });
+            }
+
+            var result = _userBL.ResetPassword(token, resetPasswordDTO.NewPassword, resetPasswordDTO.ConfirmPassword);
+
+            if(result)
+            {
+                return Ok(new
+                {
+                    Success = true,
+                    Message = "Password reset successful. Please login with your new password."
+                });
+            }
+            else
+            {
+                return BadRequest(new
+                {
+                    Success = false,
+                    Message = "Failed to reset password. The token may be invalid or expired, or passwords don't match."
+                });
+            }
+        }
     }
 }

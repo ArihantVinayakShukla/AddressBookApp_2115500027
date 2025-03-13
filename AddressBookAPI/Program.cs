@@ -56,10 +56,13 @@ else
 
 
 builder.Services.AddSingleton<JwtHelper>();
+builder.Services.AddSingleton<ResetTokenHelper>();
 builder.Services.AddScoped<IAddressBookRL, AddressBookRL>();
 builder.Services.AddScoped<IUserRL, UserRL>();
 builder.Services.AddScoped<IAddressBookBL, AddressBookBL>();
 builder.Services.AddScoped<IUserBL, UserBL>();
+builder.Services.Configure<SmtpSettings>(builder.Configuration.GetSection("SMTP"));
+builder.Services.AddScoped<EmailService>();
 
 // Configure Database Context
 var connectionString = builder.Configuration.GetConnectionString("SqlConnection");
