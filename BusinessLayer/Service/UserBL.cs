@@ -30,5 +30,15 @@ namespace BusinessLayer.Service
         {
             return _userRL.GetUserIdByEmail(email);
         }
+
+        public bool ForgotPassword(string email)
+        {
+            return _userRL.ForgotPassword(email);
+        }
+
+        public bool ResetPassword(string token, string newPassword, string confirmPassword)
+        {
+            return _userRL.ResetPassword(token, newPassword, confirmPassword);  
+        }
     }
 }
