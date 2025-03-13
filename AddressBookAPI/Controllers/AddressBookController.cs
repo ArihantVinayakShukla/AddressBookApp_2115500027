@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using BusinessLayer.Interface;
+using Microsoft.AspNetCore.Mvc;
+using ModelLayer.DTO;
 using RepositoryLayer.Context;
 using RepositoryLayer.Entity;
 
@@ -8,30 +10,31 @@ namespace AddressBookAPI.Controllers
         [Route("api/addressbook")]
     public class AddressBookController : ControllerBase
     {
-        private readonly AddressBookContext _context;
-        public AddressBookController(AddressBookContext context)
+        private readonly IAddressBookBL _addressBookBL;
+
+        public AddressBookController(IAddressBookBL addressBookBL)
         {
-            _context = context;
+            _addressBookBL = addressBookBL;
         }
 
 
         /// <summary>
         /// Fetch all contacts from the address book
         /// </summary>
-        /// <returns>List of AddressBook entries</returns>
+        /// <returns>List of AddressBookDTO entries</returns>
         [HttpGet]
-        public ActionResult<IEnumerable<AddressBookEntry>> GetAllContacts()
+        public ActionResult<IEnumerable<AddressBookDTO>> GetAllContacts()
         {
             try
             {
-                var contacts = _context.AddressBooks.ToList();
-                if(!contacts.Any())
+                var contacts = _addressBookBL.GetAllContacts();
+                if (contacts == null || contacts.Count == 0)
                 {
-                    return NotFound("No contacts found");
+                    return NotFound("No contacts found.");
                 }
                 return Ok(contacts);
             }
-            catch(Exception)
+            catch (Exception)
             {
                 return StatusCode(500, "Internal Server Error");
             }
@@ -44,12 +47,12 @@ namespace AddressBookAPI.Controllers
         /// <param name="id">ID of the contact</param>
         /// <returns>Contact details</returns>
         [HttpGet("{id}")]
-        public ActionResult<AddressBookEntry> GetById(int id)
+        public ActionResult<AddressBookDTO> GetById(int id)
         {
             try
             {
-                var contact = _context.AddressBooks.Find(id);
-                if(contact == null)
+                var contact = _addressBookBL.GetById(id);
+                if (contact == null)
                 {
                     return NotFound($"Contact with ID {id} not found.");
                 }
@@ -68,13 +71,12 @@ namespace AddressBookAPI.Controllers
         /// <param name="contact">New contact details</param>
         /// <returns>Created Contact</returns>
         [HttpPost]
-        public ActionResult<AddressBookEntry> AddContact(AddressBookEntry contact)
+        public ActionResult<AddressBookDTO> AddContact(AddressBookDTO contact)
         {
             try
             {
-                _context.AddressBooks.Add(contact);
-                _context.SaveChanges();
-                return CreatedAtAction(nameof(GetById), new { id = contact.Id }, contact);
+                var newContact = _addressBookBL.AddContact(contact);
+                return CreatedAtAction(nameof(GetById), new { id = newContact }, newContact);
             }
             catch (Exception)
             {
@@ -90,23 +92,16 @@ namespace AddressBookAPI.Controllers
         /// <param name="updatedContact">Updated contact details</param>
         /// <returns>Updated Contact</returns>
         [HttpPut("{id}")]
-        public ActionResult<AddressBookEntry> UpdateContact(int id, AddressBookEntry updatedContact)
+        public IActionResult UpdateContact(int id, AddressBookDTO updatedContact)
         {
             try
             {
-                var existingContact = _context.AddressBooks.Find(id);
-                if (existingContact == null)
+                var contact = _addressBookBL.UpdateContact(id, updatedContact);
+                if (contact == null)
                 {
                     return NotFound($"Contact with ID {id} not found.");
                 }
-
-                existingContact.Name = updatedContact.Name;
-                existingContact.Email = updatedContact.Email;
-                existingContact.Phone = updatedContact.Phone;
-                existingContact.Address = updatedContact.Address;
-
-                _context.SaveChanges();
-                return Ok(existingContact);
+                return Ok(contact);
             }
             catch (Exception)
             {
@@ -125,14 +120,11 @@ namespace AddressBookAPI.Controllers
         {
             try
             {
-                var contact = _context.AddressBooks.Find(id);
-                if (contact == null)
+                var result = _addressBookBL.DeleteContact(id);
+                if (!result)
                 {
                     return NotFound($"Contact with ID {id} not found.");
                 }
-
-                _context.AddressBooks.Remove(contact);
-                _context.SaveChanges();
                 return Ok("Contact deleted successfully.");
             }
             catch (Exception)
@@ -141,6 +133,6 @@ namespace AddressBookAPI.Controllers
             }
         }
 
-        
+
     }
 }
