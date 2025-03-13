@@ -4,5 +4,40 @@
         <name>AddressBookAPI</name>
     </assembly>
     <members>
+        <member name="M:AddressBookAPI.Controllers.AddressBookController.GetAllContacts">
+            <summary>
+            Fetch all contacts from the address book
+            </summary>
+            <returns>List of AddressBook entries</returns>
+        </member>
+        <member name="M:AddressBookAPI.Controllers.AddressBookController.GetById(System.Int32)">
+            <summary>
+            Get a contact by ID.
+            </summary>
+            <param name="id">ID of the contact</param>
+            <returns>Contact details</returns>
+        </member>
+        <member name="M:AddressBookAPI.Controllers.AddressBookController.AddContact(RepositoryLayer.Entity.AddressBookEntity)">
+            <summary>
+            Add a new contact to the address book
+            </summary>
+            <param name="contact">New contact details</param>
+            <returns>Created Contact</returns>
+        </member>
+        <member name="M:AddressBookAPI.Controllers.AddressBookController.UpdateContact(System.Int32,RepositoryLayer.Entity.AddressBookEntity)">
+            <summary>
+            Update an existing contact
+            </summary>
+            <param name="id">Id of the contact</param>
+            <param name="updatedContact">Updated contact details</param>
+            <returns>Updated Contact</returns>
+        </member>
+        <member name="M:AddressBookAPI.Controllers.AddressBookController.DeleteContact(System.Int32)">
+            <summary>
+            Delete a contact by ID
+            </summary>
+            <param name="id">ID of the contact</param>
+            <returns>Deletion status</returns>
+        </member>
     </members>
 </doc>
