@@ -1,16 +1,39 @@
+using AutoMapper;
+using BusinessLayer.Validation;
+using FluentValidation.AspNetCore;
 using Microsoft.EntityFrameworkCore;
 using RepositoryLayer.Context;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-
+// Add services to the container
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+
+
+
+// Register AutoMapper
+builder.Services.AddSingleton<IMapper>(sp =>
+{
+    var config = new MapperConfiguration(cfg =>
+    {
+        cfg.AddMaps(AppDomain.CurrentDomain.GetAssemblies());
+    });
+
+    return config.CreateMapper();
+});
+
+// Add FluentValidation
+builder.Services.AddControllers()
+    .AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<AddressBookValidator>());
+
+
+
+// Add OpenAPI (Swagger) support
 builder.Services.AddEndpointsApiExplorer();
 
-var xmlFile = "AddressBookApplication.xml"; 
+var xmlFile = "AddressBookApplication.xml";
 var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+
 if (File.Exists(xmlPath))
 {
     builder.Services.AddSwaggerGen(options =>
@@ -24,11 +47,17 @@ else
 }
 
 
+
+// Configure Database Context
 var connectionString = builder.Configuration.GetConnectionString("SqlConnection");
-builder.Services.AddDbContext<AddressBookContext>(options => options.UseSqlServer(connectionString));
+builder.Services.AddDbContext<AddressBookContext>(options =>
+    options.UseSqlServer(connectionString));
 
 var app = builder.Build();
 
+
+
+// Configure the HTTP request pipeline
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -36,9 +65,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
 app.UseAuthorization();
-
 app.MapControllers();
 
 app.Run();

@@ -14,6 +14,6 @@ namespace RepositoryLayer.Context
         {
         }
 
-        public DbSet<AddressBookEntity> AddressBooks { get; set; }
+        public DbSet<AddressBookEntry> AddressBooks { get; set; }
     }
 }

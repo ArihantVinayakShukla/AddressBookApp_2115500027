@@ -20,7 +20,7 @@ namespace AddressBookAPI.Controllers
         /// </summary>
         /// <returns>List of AddressBook entries</returns>
         [HttpGet]
-        public ActionResult<IEnumerable<AddressBookEntity>> GetAllContacts()
+        public ActionResult<IEnumerable<AddressBookEntry>> GetAllContacts()
         {
             try
             {
@@ -44,7 +44,7 @@ namespace AddressBookAPI.Controllers
         /// <param name="id">ID of the contact</param>
         /// <returns>Contact details</returns>
         [HttpGet("{id}")]
-        public ActionResult<AddressBookEntity> GetById(int id)
+        public ActionResult<AddressBookEntry> GetById(int id)
         {
             try
             {
@@ -68,7 +68,7 @@ namespace AddressBookAPI.Controllers
         /// <param name="contact">New contact details</param>
         /// <returns>Created Contact</returns>
         [HttpPost]
-        public ActionResult<AddressBookEntity> AddContact(AddressBookEntity contact)
+        public ActionResult<AddressBookEntry> AddContact(AddressBookEntry contact)
         {
             try
             {
@@ -90,7 +90,7 @@ namespace AddressBookAPI.Controllers
         /// <param name="updatedContact">Updated contact details</param>
         /// <returns>Updated Contact</returns>
         [HttpPut("{id}")]
-        public ActionResult<AddressBookEntity> UpdateContact(int id, AddressBookEntity updatedContact)
+        public ActionResult<AddressBookEntry> UpdateContact(int id, AddressBookEntry updatedContact)
         {
             try
             {
