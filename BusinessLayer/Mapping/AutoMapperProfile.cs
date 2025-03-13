@@ -9,10 +9,12 @@ using RepositoryLayer.Entity;
 
 namespace BusinessLayer.Mapping
 {
-    public class AddressBookMapping : Profile
+    public class AutoMapperProfile : Profile
     {
-        public AddressBookMapping()
+        public AutoMapperProfile()
         {
+            CreateMap<UserEntry, UserDTO>().ReverseMap();
+
             CreateMap<AddressBookEntry, AddressBookDTO>().ReverseMap();
         }
     }
