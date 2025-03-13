@@ -8,7 +8,7 @@
             <summary>
             Fetch all contacts from the address book
             </summary>
-            <returns>List of AddressBook entries</returns>
+            <returns>List of AddressBookDTO entries</returns>
         </member>
         <member name="M:AddressBookAPI.Controllers.AddressBookController.GetById(System.Int32)">
             <summary>
@@ -17,14 +17,14 @@
             <param name="id">ID of the contact</param>
             <returns>Contact details</returns>
         </member>
-        <member name="M:AddressBookAPI.Controllers.AddressBookController.AddContact(RepositoryLayer.Entity.AddressBookEntry)">
+        <member name="M:AddressBookAPI.Controllers.AddressBookController.AddContact(ModelLayer.DTO.AddressBookDTO)">
             <summary>
             Add a new contact to the address book
             </summary>
             <param name="contact">New contact details</param>
             <returns>Created Contact</returns>
         </member>
-        <member name="M:AddressBookAPI.Controllers.AddressBookController.UpdateContact(System.Int32,RepositoryLayer.Entity.AddressBookEntry)">
+        <member name="M:AddressBookAPI.Controllers.AddressBookController.UpdateContact(System.Int32,ModelLayer.DTO.AddressBookDTO)">
             <summary>
             Update an existing contact
             </summary>

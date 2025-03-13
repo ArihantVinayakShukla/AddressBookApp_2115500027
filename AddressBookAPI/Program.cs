@@ -1,14 +1,20 @@
 using AutoMapper;
+using BusinessLayer.Interface;
+using BusinessLayer.Service;
 using BusinessLayer.Validation;
 using FluentValidation.AspNetCore;
 using Microsoft.EntityFrameworkCore;
 using RepositoryLayer.Context;
+using RepositoryLayer.Interface;
+using RepositoryLayer.Service;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container
 builder.Services.AddControllers();
 
+builder.Services.AddScoped<IAddressBookRL, AddressBookRL>();
+builder.Services.AddScoped<IAddressBookBL, AddressBookBL>();
 
 
 // Register AutoMapper
