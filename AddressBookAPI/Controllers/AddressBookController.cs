@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ModelLayer.DTO;
+using RepositoryLayer.Helper;
 using System;
 using System.Collections.Generic;
 using System.Security.Claims;
@@ -14,12 +15,14 @@ namespace AddressBookAPI.Controllers
     public class AddressBookController : ControllerBase
     {
         private readonly IAddressBookBL _addressBookBL;
-        private readonly IUserBL _userBL; // Added UserBL to fetch UserId from Email
+        private readonly IUserBL _userBL;
+        private readonly RabbitMQProducer _rabbitMQProducer;
 
-        public AddressBookController(IAddressBookBL addressBookBL, IUserBL userBL)
+        public AddressBookController(IAddressBookBL addressBookBL, IUserBL userBL, RabbitMQProducer rabbitMQProducer)
         {
             _addressBookBL = addressBookBL;
             _userBL = userBL;
+            _rabbitMQProducer = rabbitMQProducer;
         }
 
         // Extracts the Email from the JWT Token
@@ -94,6 +97,10 @@ namespace AddressBookAPI.Controllers
                     return Unauthorized("Invalid user credentials.");
 
                 var newContact = _addressBookBL.AddContact(contact, userEmail);
+
+                string message = $"New contact added: {newContact.Name} by User {userId}";
+                _rabbitMQProducer.PublishMessage("contact.created", message);
+
                 return CreatedAtAction(nameof(GetById), new { id = newContact.Id }, newContact);
             }
             catch (Exception)
