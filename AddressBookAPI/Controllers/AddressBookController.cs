@@ -49,12 +49,19 @@ namespace AddressBookAPI.Controllers
             {
                 string userEmail = GetUserEmailFromToken();
                 int userId = _userBL.GetUserIdByEmail(userEmail);
+                string userRole = _userBL.GetUserRoleByEmail(userEmail);
 
                 if (userId == 0)
                     return Unauthorized("Invalid user credentials.");
 
-                var contacts = _addressBookBL.GetAllContacts(userEmail);
-                return contacts.Count > 0 ? Ok(contacts) : NotFound("No contacts found.");
+                if (userRole == "Admin")
+                {
+                    var allContacts = _addressBookBL.GetAllContactsForAdmin();
+                    return Ok(allContacts);
+                }
+
+                var userContacts = _addressBookBL.GetAllContacts(userEmail);
+                return userContacts.Count > 0 ? Ok(userContacts) : NotFound("No contacts found.");
             }
             catch (Exception)
             {
@@ -154,12 +161,19 @@ namespace AddressBookAPI.Controllers
             {
                 string userEmail = GetUserEmailFromToken();
                 int userId = _userBL.GetUserIdByEmail(userEmail);
+                string userRole = _userBL.GetUserRoleByEmail(userEmail);
 
                 if (userId == 0)
                     return Unauthorized("Invalid user credentials.");
 
+                if (userRole == "Admin")
+                {
+                    bool isDeleted = _addressBookBL.DeleteContactAsAdmin(id);
+                    return isDeleted ? Ok("Contact deleted.") : NotFound($"Contact with ID {id} not found.");
+                }
+
                 var result = _addressBookBL.DeleteContact(id, userEmail);
-                return result ? Ok("Contact deleted successfully.") : NotFound($"Contact with ID {id} not found.");
+                return result ? Ok("Contact deleted.") : NotFound($"Contact with ID {id} not found.");
             }
             catch (Exception)
             {

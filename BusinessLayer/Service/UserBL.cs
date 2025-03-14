@@ -30,7 +30,10 @@ namespace BusinessLayer.Service
         {
             return _userRL.GetUserIdByEmail(email);
         }
-
+        public string GetUserRoleByEmail(string email)
+        {
+            return _userRL.GetUserRoleByEmail(email);
+        }
         public bool ForgotPassword(string email)
         {
             return _userRL.ForgotPassword(email);
@@ -40,5 +43,11 @@ namespace BusinessLayer.Service
         {
             return _userRL.ResetPassword(token, newPassword, confirmPassword);  
         }
+
+        public UserDTO GetUserProfile(string email)
+        {
+            return _userRL.GetUserProfile(email);
+        }
+
     }
 }

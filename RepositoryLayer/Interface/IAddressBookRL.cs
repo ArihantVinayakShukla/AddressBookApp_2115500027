@@ -10,9 +10,11 @@ namespace RepositoryLayer.Interface
     public interface IAddressBookRL
     {
         List<AddressBookEntry> GetAllContacts(int userId);
+        List<AddressBookEntry> GetAllContactsForAdmin();
         AddressBookEntry GetById(int id, int userId);
         AddressBookEntry AddContact(AddressBookEntry contact, int userId);
         AddressBookEntry UpdateContact(int id, AddressBookEntry updatedContact, int userId);
         bool DeleteContact(int id, int userId);
+        bool DeleteContactAsAdmin(int id);
     }
 }

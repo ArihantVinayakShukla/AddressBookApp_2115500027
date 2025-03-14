@@ -69,9 +69,15 @@ namespace RepositoryLayer.Helper
 
                 if (message.StartsWith("User registered:"))
                 {
-                    string email = message.Split(": ")[1];
-                    Console.WriteLine($"[RabbitMQ] Sending welcome email to {email}");
-                    await emailService.SendWelcomeEmailAsync(email);
+                    string[] parts = message.Split(":");
+                    if (parts.Length >= 3)
+                    {
+                        string email = parts[1].Trim();
+                        string role = parts[2].Trim();
+
+                        Console.WriteLine($"[RabbitMQ] Sending welcome email to {email} with role {role}");
+                        await emailService.SendWelcomeEmailAsync(email);
+                    }
                 }
                 else if (message.StartsWith("New contact added:"))
                 {

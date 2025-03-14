@@ -37,6 +37,11 @@ namespace RepositoryLayer.Service
             return contacts;
         }
 
+        public List<AddressBookEntry> GetAllContactsForAdmin()
+        {
+            return _context.AddressBooks.ToList();
+        }
+
         public AddressBookEntry GetById(int id, int userId)
         {
             var cachedContact = _cacheHelper.GetCacheAsync<AddressBookEntry>($"addressbook_{userId}_{id}").Result;
@@ -97,6 +102,17 @@ namespace RepositoryLayer.Service
             _cacheHelper.RemoveCacheAsync($"addressbook_user{userId}_contact{id}").Wait();
 
             _cacheHelper.RemoveCacheAsync($"addressbook_user_{userId}").Wait();
+            return true;
+        }
+
+        public bool DeleteContactAsAdmin(int id)
+        {
+            var contact = _context.AddressBooks.FirstOrDefault(c => c.Id == id);
+            if (contact == null) return false;
+
+            _context.AddressBooks.Remove(contact);
+            _context.SaveChanges();
+
             return true;
         }
     }

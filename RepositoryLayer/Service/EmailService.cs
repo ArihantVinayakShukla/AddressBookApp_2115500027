@@ -75,6 +75,14 @@ namespace RepositoryLayer.Service
 
         public async Task SendWelcomeEmailAsync(string email)
         {
+            Console.WriteLine($"[Debug] Sending email to: {email}");
+
+            if (!IsValidEmail(email))
+            {
+                Console.WriteLine($"[Error] Invalid email format: {email}");
+                return;
+            }
+
             using (var smtpClient = new SmtpClient(_configuration["Smtp:Server"])
             {
                 Port = int.Parse(_configuration["Smtp:Port"]),
@@ -95,6 +103,20 @@ namespace RepositoryLayer.Service
                 Console.WriteLine($"[RabbitMQ] Welcome email sent to {email}");
             }
         }
+
+        public static bool IsValidEmail(string email)
+        {
+            try
+            {
+                var addr = new MailAddress(email);
+                return true;
+            }
+            catch (FormatException)
+            {
+                return false;
+            }
+        }
+
 
     }
 }

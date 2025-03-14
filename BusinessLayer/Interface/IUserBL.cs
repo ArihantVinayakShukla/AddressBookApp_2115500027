@@ -12,8 +12,9 @@ namespace BusinessLayer.Interface
         UserDTO Register(UserDTO userDto);
         Task<string> Login(LoginDTO loginDTO);
         int GetUserIdByEmail(string email);
+        string GetUserRoleByEmail(string email);
         public bool ForgotPassword(string email);
         public bool ResetPassword(string token, string newPassword, string confirmPassword);
-
+        UserDTO GetUserProfile(string email);
     }
 }

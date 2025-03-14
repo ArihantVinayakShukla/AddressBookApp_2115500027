@@ -83,5 +83,11 @@
             <param name="resetPasswordDTO">New password and confirmation password</param>
             <returns>Returns success or failure response</returns>
         </member>
+        <member name="M:AddressBookAPI.Controllers.UserController.GetUserProfile">
+            <summary>
+            Get the logged-in user's profile
+            </summary>
+            <returns></returns>
+        </member>
     </members>
 </doc>
