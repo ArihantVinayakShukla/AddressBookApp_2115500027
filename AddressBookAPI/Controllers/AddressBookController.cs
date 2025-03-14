@@ -18,6 +18,13 @@ namespace AddressBookAPI.Controllers
         private readonly IUserBL _userBL;
         private readonly RabbitMQProducer _rabbitMQProducer;
 
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AddressBookController"/> class.
+        /// </summary>
+        /// <param name="addressBookBL">The business logic layer for address book operations</param>
+        /// <param name="userBL">The business logic layer for user operations</param>
+        /// <param name="rabbitMQProducer">The RabbitMQ producer for event-driven messaging.</param>
         public AddressBookController(IAddressBookBL addressBookBL, IUserBL userBL, RabbitMQProducer rabbitMQProducer)
         {
             _addressBookBL = addressBookBL;

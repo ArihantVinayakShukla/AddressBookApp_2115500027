@@ -4,6 +4,14 @@
         <name>AddressBookAPI</name>
     </assembly>
     <members>
+        <member name="M:AddressBookAPI.Controllers.AddressBookController.#ctor(BusinessLayer.Interface.IAddressBookBL,BusinessLayer.Interface.IUserBL,RepositoryLayer.Helper.RabbitMQProducer)">
+            <summary>
+            Initializes a new instance of the <see cref="T:AddressBookAPI.Controllers.AddressBookController"/> class.
+            </summary>
+            <param name="addressBookBL">The business logic layer for address book operations</param>
+            <param name="userBL">The business logic layer for user operations</param>
+            <param name="rabbitMQProducer">The RabbitMQ producer for event-driven messaging.</param>
+        </member>
         <member name="M:AddressBookAPI.Controllers.AddressBookController.GetAllContacts">
             <summary>
             Fetch all contacts for the logged-in user
@@ -38,6 +46,42 @@
             </summary>
             <param name="id">ID of the contact</param>
             <returns>Deletion status</returns>
+        </member>
+        <member name="M:AddressBookAPI.Controllers.UserController.#ctor(BusinessLayer.Interface.IUserBL,RepositoryLayer.Helper.RabbitMQProducer)">
+            <summary>
+            Initializes a new instance of the <see cref="T:AddressBookAPI.Controllers.UserController"/> class.
+            </summary>
+            <param name="userBL">The business logic layer for user operations.</param>
+            <param name="rabbitMQProducer">The RabbitMQ producer for event-driven messaging.</param>
+        </member>
+        <member name="M:AddressBookAPI.Controllers.UserController.Register(ModelLayer.DTO.UserDTO)">
+            <summary>
+            Registers a new user.
+            </summary>
+            <param name="userDto">User registration details</param>
+            <returns>returns the registered user details</returns>
+        </member>
+        <member name="M:AddressBookAPI.Controllers.UserController.Login(ModelLayer.DTO.LoginDTO)">
+            <summary>
+            Authenticates a user and returns a JWT token
+            </summary>
+            <param name="loginDto">User login credentials</param>
+            <returns>Returns a JWT token if authentication is successful</returns>
+        </member>
+        <member name="M:AddressBookAPI.Controllers.UserController.ForgotPassword(ModelLayer.DTO.ForgotPasswordDTO)">
+            <summary>
+            Initiates a password reset request by sending reset instructions to the user's email.
+            </summary>
+            <param name="forgotPasswordDTO">User's email address for password reset</param>
+            <returns>Returns success or failure response</returns>
+        </member>
+        <member name="M:AddressBookAPI.Controllers.UserController.ResetPassword(System.String,ModelLayer.DTO.ResetPasswordDTO)">
+            <summary>
+            Resets the user's password using a reset token
+            </summary>
+            <param name="token">The password reset token</param>
+            <param name="resetPasswordDTO">New password and confirmation password</param>
+            <returns>Returns success or failure response</returns>
         </member>
     </members>
 </doc>
