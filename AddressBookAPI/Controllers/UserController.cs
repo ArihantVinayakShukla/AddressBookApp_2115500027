@@ -12,12 +12,22 @@ namespace AddressBookAPI.Controllers
         private readonly IUserBL _userBL;
         private readonly RabbitMQProducer _rabbitMQProducer;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="UserController"/> class.
+        /// </summary>
+        /// <param name="userBL">The business logic layer for user operations.</param>
+        /// <param name="rabbitMQProducer">The RabbitMQ producer for event-driven messaging.</param>
         public UserController(IUserBL userBL, RabbitMQProducer rabbitMQProducer)
         {
             _userBL = userBL;
             _rabbitMQProducer = rabbitMQProducer;
         }
 
+        /// <summary>
+        /// Registers a new user.
+        /// </summary>
+        /// <param name="userDto">User registration details</param>
+        /// <returns>returns the registered user details</returns>
         [HttpPost("register")]
         public IActionResult Register([FromBody] UserDTO userDto)
         {
@@ -33,6 +43,11 @@ namespace AddressBookAPI.Controllers
             return Ok(result);
         }
 
+        /// <summary>
+        /// Authenticates a user and returns a JWT token
+        /// </summary>
+        /// <param name="loginDto">User login credentials</param>
+        /// <returns>Returns a JWT token if authentication is successful</returns>
         [HttpPost("login")]
         public IActionResult Login([FromBody] LoginDTO loginDto)
         {
@@ -42,6 +57,11 @@ namespace AddressBookAPI.Controllers
             return Ok(new { Token = token });
         }
 
+        /// <summary>
+        /// Initiates a password reset request by sending reset instructions to the user's email.
+        /// </summary>
+        /// <param name="forgotPasswordDTO">User's email address for password reset</param>
+        /// <returns>Returns success or failure response</returns>
         [HttpPost("forgot-password")]
         public IActionResult ForgotPassword([FromBody] ForgotPasswordDTO forgotPasswordDTO)
         {
@@ -64,6 +84,12 @@ namespace AddressBookAPI.Controllers
             }
         }
 
+        /// <summary>
+        /// Resets the user's password using a reset token
+        /// </summary>
+        /// <param name="token">The password reset token</param>
+        /// <param name="resetPasswordDTO">New password and confirmation password</param>
+        /// <returns>Returns success or failure response</returns>
         [HttpPost("reset-password")]
         public IActionResult ResetPassword([FromQuery] string token, [FromBody] ResetPasswordDTO resetPasswordDTO)
         {
