@@ -21,9 +21,9 @@ namespace BusinessLayer.Service
             return _mapper.Map<UserDTO>(_userRL.Register(userDto));
         }
 
-        public string Login(LoginDTO loginDto)
+        public async Task<string> Login(LoginDTO loginDto)
         {
-            return _userRL.Login(loginDto);
+            return await _userRL.Login(loginDto);  
         }
 
         public int GetUserIdByEmail(string email)

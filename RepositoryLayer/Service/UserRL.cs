@@ -20,15 +20,17 @@ namespace RepositoryLayer.Service
         private readonly ResetTokenHelper _resetTokenHelper;
         private readonly IConfiguration _configuration;
         private readonly EmailService _emailService;
+        private readonly RedisCacheHelper _cacheHelper;
 
 
-        public UserRL(AddressBookContext context, JwtHelper jwtHelper, ResetTokenHelper resetTokenHelper, IConfiguration configuration, EmailService emailService )
+        public UserRL(AddressBookContext context, JwtHelper jwtHelper, ResetTokenHelper resetTokenHelper, IConfiguration configuration, EmailService emailService, RedisCacheHelper cacheHelper )
         {
             _context = context;
             _jwtHelper = jwtHelper;
             _resetTokenHelper = resetTokenHelper;
             _configuration = configuration;
             _emailService = emailService;
+            _cacheHelper = cacheHelper;
         }
 
         public UserDTO Register(UserDTO userDto)
@@ -56,7 +58,7 @@ namespace RepositoryLayer.Service
             };
         }
 
-        public string Login(LoginDTO loginDto)
+        public async Task<string> Login(LoginDTO loginDto)
         {
             var user = _context.Users.FirstOrDefault(u => u.Email == loginDto.Email);
 
@@ -66,12 +68,28 @@ namespace RepositoryLayer.Service
                 return null;
             }
 
-            return _jwtHelper.GenerateToken(user.Email, user.Role);
+            string token = _jwtHelper.GenerateToken(user.Email, user.Role);
+
+            await _cacheHelper.SetCacheAsync($"user:{user.Email}", user);
+
+            return token;
         }
 
         public int GetUserIdByEmail(string email)
         {
+            var cachedUser = _cacheHelper.GetCacheAsync<UserEntry>($"user_{email}").Result;
+
+            if (cachedUser != null)
+            {
+                return cachedUser.Id;
+            }
+
             var user = _context.Users.FirstOrDefault(u => u.Email == email);
+            if (user != null)
+            {
+                _cacheHelper.SetCacheAsync($"user_{user.Email}", user).Wait();
+            }
+
             return user?.Id ?? 0;
         }
 
@@ -118,6 +136,8 @@ namespace RepositoryLayer.Service
             user.PasswordHash = hashedPassword;
 
             _context.SaveChanges();
+
+            _cacheHelper.RemoveCacheAsync($"user_{user.Email}").Wait();
 
             return true;
         }
