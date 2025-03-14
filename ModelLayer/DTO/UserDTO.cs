@@ -26,5 +26,10 @@ namespace ModelLayer.DTO
         /// Password chosen by the user for authentication.
         /// </summary>
         public string Password { get; set; }
+
+        /// <summary>
+        /// Role chosen by the user
+        /// </summary>
+        public string Role { get; set; } = "User";
     }
 }

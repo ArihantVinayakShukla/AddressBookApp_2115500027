@@ -44,7 +44,7 @@ namespace RepositoryLayer.Service
                 LastName = userDto.LastName,
                 Email = userDto.Email,
                 PasswordHash = hashedPassword,
-                Role = "User"
+                Role = userDto.Role
             };
 
             _context.Users.Add(user);
@@ -54,7 +54,8 @@ namespace RepositoryLayer.Service
             {
                 FirstName = user.FirstName,
                 LastName = user.LastName,
-                Email = user.Email
+                Email = user.Email,
+                Role = user.Role
             };
         }
 
@@ -91,6 +92,24 @@ namespace RepositoryLayer.Service
             }
 
             return user?.Id ?? 0;
+        }
+
+        public string GetUserRoleByEmail(string email)
+        {
+            var cachedUser = _cacheHelper.GetCacheAsync<UserEntry>($"user_{email}").Result;
+
+            if (cachedUser != null)
+            {
+                return cachedUser.Role;
+            }
+
+            var user = _context.Users.FirstOrDefault(u => u.Email == email);
+            if (user != null)
+            {
+                _cacheHelper.SetCacheAsync($"user_{user.Email}", user).Wait();
+            }
+
+            return user?.Role ?? "User"; 
         }
 
         public bool ForgotPassword(string email)
@@ -140,6 +159,35 @@ namespace RepositoryLayer.Service
             _cacheHelper.RemoveCacheAsync($"user_{user.Email}").Wait();
 
             return true;
+        }
+
+        public UserDTO GetUserProfile(string email)
+        {
+            var cachedUser = _cacheHelper.GetCacheAsync<UserEntry>($"user_{email}").Result;
+
+            if (cachedUser != null)
+            {
+                return new UserDTO
+                {
+                    FirstName = cachedUser.FirstName,
+                    LastName = cachedUser.LastName,
+                    Email = cachedUser.Email,
+                    Role = cachedUser.Role
+                };
+            }
+
+            var user = _context.Users.FirstOrDefault(u => u.Email == email);
+            if (user == null) return null;
+
+            _cacheHelper.SetCacheAsync($"user_{email}", user).Wait();
+
+            return new UserDTO
+            {
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                Email = user.Email,
+                Role = user.Role
+            };
         }
 
 

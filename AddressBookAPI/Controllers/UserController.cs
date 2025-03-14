@@ -1,4 +1,6 @@
-﻿using BusinessLayer.Interface;
+﻿using System.Security.Claims;
+using BusinessLayer.Interface;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ModelLayer.DTO;
 using RepositoryLayer.Helper;
@@ -37,7 +39,7 @@ namespace AddressBookAPI.Controllers
                 return BadRequest("User registration failed.");
             }
 
-            string message = $"User registered: {result.Email}";
+            string message = $"User registered: {result.Email}:{result.Role}";
             _rabbitMQProducer.PublishMessage("user.registration", message);
 
             return Ok(result);
@@ -120,6 +122,35 @@ namespace AddressBookAPI.Controllers
                     Success = false,
                     Message = "Failed to reset password. The token may be invalid or expired, or passwords don't match."
                 });
+            }
+        }
+
+
+        /// <summary>
+        /// Get the logged-in user's profile
+        /// </summary>
+        /// <returns></returns>
+        [Authorize]
+        [HttpGet("profile")]
+        public IActionResult GetUserProfile()
+        {
+            try
+            {
+                string userEmail = User.FindFirstValue(ClaimTypes.Email);
+                Console.WriteLine($"[Email]: {userEmail}");
+
+                if (string.IsNullOrEmpty(userEmail))
+                    return Unauthorized("Invalid user credentials.");
+
+                var userProfile = _userBL.GetUserProfile(userEmail);
+                if (userProfile == null)
+                    return NotFound("User not found.");
+
+                return Ok(userProfile);
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, "Internal Server Error");
             }
         }
     }

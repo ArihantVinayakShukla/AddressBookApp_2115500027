@@ -26,6 +26,11 @@ namespace BusinessLayer.Service
             return _mapper.Map<List<AddressBookDTO>>(_addressBookRL.GetAllContacts(userId));
         }
 
+        public List<AddressBookDTO> GetAllContactsForAdmin()
+        {
+            return _mapper.Map<List<AddressBookDTO>>(_addressBookRL.GetAllContactsForAdmin());
+        }
+
         public AddressBookDTO GetById(int id, string userEmail)
         {
             int userId = _userRL.GetUserIdByEmail(userEmail);
@@ -54,5 +59,11 @@ namespace BusinessLayer.Service
             int userId = _userRL.GetUserIdByEmail(userEmail);
             return _addressBookRL.DeleteContact(id, userId);
         }
+
+        public bool DeleteContactAsAdmin(int id)
+        {
+            return _addressBookRL.DeleteContactAsAdmin(id);
+        }
+
     }
 }
