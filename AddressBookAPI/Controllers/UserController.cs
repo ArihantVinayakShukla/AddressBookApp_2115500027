@@ -1,6 +1,7 @@
 ﻿using BusinessLayer.Interface;
 using Microsoft.AspNetCore.Mvc;
 using ModelLayer.DTO;
+using RepositoryLayer.Helper;
 
 namespace AddressBookAPI.Controllers
 {
@@ -9,16 +10,26 @@ namespace AddressBookAPI.Controllers
     public class UserController : ControllerBase
     {
         private readonly IUserBL _userBL;
+        private readonly RabbitMQProducer _rabbitMQProducer;
 
-        public UserController(IUserBL userBL)
+        public UserController(IUserBL userBL, RabbitMQProducer rabbitMQProducer)
         {
             _userBL = userBL;
+            _rabbitMQProducer = rabbitMQProducer;
         }
 
         [HttpPost("register")]
         public IActionResult Register([FromBody] UserDTO userDto)
         {
             var result = _userBL.Register(userDto);
+            if (result == null)
+            {
+                return BadRequest("User registration failed.");
+            }
+
+            string message = $"User registered: {result.Email}";
+            _rabbitMQProducer.PublishMessage("user.registration", message);
+
             return Ok(result);
         }
 
