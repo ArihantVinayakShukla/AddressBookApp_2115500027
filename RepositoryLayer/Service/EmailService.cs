@@ -4,10 +4,11 @@ using System.Net;
 using Microsoft.Extensions.Options;
 using RepositoryLayer.Helper;
 using Microsoft.Extensions.Configuration;
+using RepositoryLayer.Interface;
 
 namespace RepositoryLayer.Service
 {
-    public class EmailService
+    public class EmailService : IEmailService
     {
         private readonly SmtpSettings _smtpSettings;
         private readonly IConfiguration _configuration;

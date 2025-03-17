@@ -6,10 +6,11 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Configuration;
+using StackExchange.Redis;
 
 namespace RepositoryLayer.Helper
 {
-    public class RedisCacheHelper
+    public class RedisCacheHelper : IRedisCacheHelper
     {
         private readonly IDistributedCache _cache;
         private readonly int _cacheExpirationMinutes;

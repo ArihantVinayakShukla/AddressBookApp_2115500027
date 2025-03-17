@@ -10,7 +10,7 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace RepositoryLayer.Helper
 {
-    public class JwtHelper
+    public class JwtHelper : IJwtHelper
     {
         private readonly IConfiguration _configuration;
 

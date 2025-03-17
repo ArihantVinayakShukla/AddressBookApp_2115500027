@@ -7,7 +7,7 @@ using System.Text;
 
 namespace RepositoryLayer.Helper
 {
-    public class ResetTokenHelper
+    public class ResetTokenHelper : IResetTokenHelper
     {
         private readonly IConfiguration _configuration;
 
