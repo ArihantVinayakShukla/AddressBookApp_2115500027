@@ -13,9 +13,9 @@ namespace RepositoryLayer.Service
     public class AddressBookRL : IAddressBookRL
     {
         private readonly AddressBookContext _context;
-        private readonly RedisCacheHelper _cacheHelper;
+        private readonly IRedisCacheHelper _cacheHelper;
 
-        public AddressBookRL(AddressBookContext context, RedisCacheHelper cacheHelper)
+        public AddressBookRL(AddressBookContext context, IRedisCacheHelper cacheHelper)
         {
             _context = context;
             _cacheHelper = cacheHelper;

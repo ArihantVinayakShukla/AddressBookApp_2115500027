@@ -16,14 +16,14 @@ namespace RepositoryLayer.Service
     public class UserRL : IUserRL
     {
         private readonly AddressBookContext _context;
-        private readonly JwtHelper _jwtHelper;
-        private readonly ResetTokenHelper _resetTokenHelper;
+        private readonly IJwtHelper _jwtHelper;
+        private readonly IResetTokenHelper _resetTokenHelper;
         private readonly IConfiguration _configuration;
-        private readonly EmailService _emailService;
-        private readonly RedisCacheHelper _cacheHelper;
+        private readonly IEmailService _emailService;
+        private readonly IRedisCacheHelper _cacheHelper;
 
 
-        public UserRL(AddressBookContext context, JwtHelper jwtHelper, ResetTokenHelper resetTokenHelper, IConfiguration configuration, EmailService emailService, RedisCacheHelper cacheHelper )
+        public UserRL(AddressBookContext context, IJwtHelper jwtHelper, IResetTokenHelper resetTokenHelper, IConfiguration configuration, IEmailService emailService, IRedisCacheHelper cacheHelper )
         {
             _context = context;
             _jwtHelper = jwtHelper;
