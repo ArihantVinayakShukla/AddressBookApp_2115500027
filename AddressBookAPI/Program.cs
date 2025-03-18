@@ -7,6 +7,7 @@ using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using RepositoryLayer.Context;
 using RepositoryLayer.Helper;
 using RepositoryLayer.Interface;
@@ -16,8 +17,6 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container
 builder.Services.AddControllers();
-
-
 
 // Register AutoMapper
 builder.Services.AddSingleton<IMapper>(sp =>
@@ -30,11 +29,8 @@ builder.Services.AddSingleton<IMapper>(sp =>
     return config.CreateMapper();
 });
 
-
 builder.Services.AddControllers()
     .AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<AddressBookValidator>());
-
-
 
 // Add OpenAPI (Swagger) support
 builder.Services.AddEndpointsApiExplorer();
@@ -42,28 +38,52 @@ builder.Services.AddEndpointsApiExplorer();
 var xmlFile = "AddressBookApplication.xml";
 var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
 
-if (File.Exists(xmlPath))
+builder.Services.AddSwaggerGen(options =>
 {
-    builder.Services.AddSwaggerGen(options =>
+    if (File.Exists(xmlPath))
     {
         options.IncludeXmlComments(xmlPath);
+    }
+    else
+    {
+        Console.WriteLine($"? Warning: XML documentation file not found at {xmlPath}");
+    }
+
+    // Add JWT Bearer token authorization to Swagger
+    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Description = "JWT Authorization header using the Bearer scheme. Example: 'Bearer {token}'",
+        Name = "Authorization",
+        In = ParameterLocation.Header,
+        Type = SecuritySchemeType.Http,
+        Scheme = "Bearer"
     });
-}
-else
-{
-    Console.WriteLine($"?? Warning: XML documentation file not found at {xmlPath}");
-}
 
+    options.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            new string[] {}
+        }
+    });
+});
 
-builder.Services.AddSingleton<JwtHelper>();
-builder.Services.AddSingleton<ResetTokenHelper>();
+builder.Services.AddSingleton<IJwtHelper, JwtHelper>();
+builder.Services.AddSingleton<IResetTokenHelper, ResetTokenHelper>();
 builder.Services.AddScoped<IAddressBookRL, AddressBookRL>();
 builder.Services.AddScoped<IUserRL, UserRL>();
 builder.Services.AddScoped<IAddressBookBL, AddressBookBL>();
 builder.Services.AddScoped<IUserBL, UserBL>();
 builder.Services.Configure<SmtpSettings>(builder.Configuration.GetSection("SMTP"));
-builder.Services.AddSingleton<EmailService>();
-builder.Services.AddScoped<RedisCacheHelper>();
+builder.Services.AddScoped<IEmailService, EmailService>();
+builder.Services.AddScoped<IRedisCacheHelper, RedisCacheHelper>();
 builder.Services.AddSingleton<RabbitMQProducer>();
 builder.Services.AddHostedService<RabbitMQConsumer>();
 
@@ -91,10 +111,7 @@ builder.Services.AddStackExchangeRedisCache(options =>
     options.Configuration = builder.Configuration["Redis:ConnectionString"];
 });
 
-
 var app = builder.Build();
-
-
 
 // Configure the HTTP request pipeline
 if (app.Environment.IsDevelopment())

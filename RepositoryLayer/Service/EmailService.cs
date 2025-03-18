@@ -3,7 +3,6 @@ using System.Net.Mail;
 using System.Net;
 using Microsoft.Extensions.Options;
 using RepositoryLayer.Helper;
-using Microsoft.Extensions.Configuration;
 using RepositoryLayer.Interface;
 
 namespace RepositoryLayer.Service
@@ -11,12 +10,10 @@ namespace RepositoryLayer.Service
     public class EmailService : IEmailService
     {
         private readonly SmtpSettings _smtpSettings;
-        private readonly IConfiguration _configuration;
 
-        public EmailService(IOptions<SmtpSettings> smtpSettings, IConfiguration configuration)
+        public EmailService(IOptions<SmtpSettings> smtpSettings)
         {
             _smtpSettings = smtpSettings.Value;
-            _configuration = configuration; 
         }
 
         public bool SendPasswordResetEmail(string email, string token, string baseUrl)
@@ -84,16 +81,16 @@ namespace RepositoryLayer.Service
                 return;
             }
 
-            using (var smtpClient = new SmtpClient(_configuration["Smtp:Server"])
+            using (var smtpClient = new SmtpClient(_smtpSettings.Server)
             {
-                Port = int.Parse(_configuration["Smtp:Port"]),
-                Credentials = new NetworkCredential(_configuration["Smtp:Username"], _configuration["Smtp:Password"]),
+                Port = _smtpSettings.Port,
+                Credentials = new NetworkCredential(_smtpSettings.Username, _smtpSettings.Password),
                 EnableSsl = true
             })
             {
                 var mailMessage = new MailMessage
                 {
-                    From = new MailAddress(_configuration["Smtp:SenderEmail"]),
+                    From = new MailAddress(_smtpSettings.SenderEmail),
                     Subject = "Welcome to AddressBook",
                     Body = $"Hello,\n\nThank you for registering with AddressBook!\n\nBest Regards,\nTeam",
                     IsBodyHtml = false
@@ -104,6 +101,7 @@ namespace RepositoryLayer.Service
                 Console.WriteLine($"[RabbitMQ] Welcome email sent to {email}");
             }
         }
+
 
         public static bool IsValidEmail(string email)
         {
