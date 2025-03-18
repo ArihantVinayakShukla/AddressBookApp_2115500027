@@ -8,6 +8,7 @@ using Microsoft.Extensions.Configuration;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using RepositoryLayer.Service;
+using RepositoryLayer.Interface;
 
 namespace RepositoryLayer.Helper
 {
@@ -65,7 +66,7 @@ namespace RepositoryLayer.Helper
         {
             using (var scope = _serviceProvider.CreateScope())
             {
-                var emailService = scope.ServiceProvider.GetRequiredService<EmailService>();
+                var emailService = scope.ServiceProvider.GetRequiredService<IEmailService>();
 
                 if (message.StartsWith("User registered:"))
                 {
